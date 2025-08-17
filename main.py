@@ -15,33 +15,40 @@ data0 = simulator.simulate_sprint(8.5, 11, 84, 1.86 , 100, 0) #Něco odhad
 
 
 vysledek = simulator.segments(data1)
-
-
 for segment in vysledek:
     print(f"Čas na {segment['distance']:.0f} m: {segment['total_time']:.2f} | Čas segmentu: {segment['segment_time']:.2f}")
 
-
 print('\n')
 
-
 vysledek = simulator.top_speed(data1)
-
 print(f'Maximální rychlost: {vysledek['top_speed']:.2f} m/s')
 print(f'Vzdálenost: {vysledek['distance_top_speed']:.1f} m')
 
 
-plt.figure(figsize=(10, 6))
-plt.title('Srovnání průběhu rychlosti')
-plt.xlabel('Vzdálenost (m)')
-plt.ylabel('Rychlost (m/s)')
-plt.grid(True)
 
-simulator.add_trial_to_speed_plot(data1, 'data1')
-simulator.add_trial_to_speed_plot(data6, 'data6')
+#plt.figure(figsize=(10, 6))
+#plt.title('Srovnání průběhu rychlosti')
+#plt.xlabel('Vzdálenost (m)')
+#plt.ylabel('Rychlost (m/s)')
+#plt.grid(True)
 
-plt.legend()
+#simulator.add_trial_to_speed_plot(data1, 'data1')
+#simulator.add_trial_to_speed_plot(data6, 'data6')
+
+#plt.legend()
+#plt.show()
+
+
+vysledek = simulator.f_v_profile_comparison(9, 13, 80, 1.85 , 60, 0)
+
+slope_list = []
+time_list = []
+
+for record in vysledek:
+    slope_list.append(record['f_v_slope'])
+    time_list.append(record['time'])
+
+plt.plot(slope_list, time_list, label = 'Vztah Sfv a výkonu')
 plt.show()
-
-
 
 #python main.py

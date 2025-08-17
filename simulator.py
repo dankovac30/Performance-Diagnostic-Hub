@@ -139,7 +139,38 @@ def add_trial_to_speed_plot(data, name):
     plt.plot(data['distance'], data['speed'], label=name)
 
 
+def f_v_profile_comparison(F0, V0, weight, height, running_distance, external_force_N):
+    max_power = (F0 * V0) / 4
+    
+    f_v_slopes_resuls = []
 
+    f_v_slopes_range = []
+    min_value = 0.01
+    max_value = 2.00
+    f_v_slope_increment = 0.01
+
+    while min_value <= max_value:
+        f_v_slopes_range.append(min_value)
+        min_value += f_v_slope_increment
+
+    for value in f_v_slopes_range:
+        V0 = math.sqrt((4*max_power)/value)
+        F0 = V0 * value
+
+        data = simulate_sprint(F0, V0, weight, height, running_distance)
+
+        current_f_v = {
+            'f_v_slope': value,
+            'time': data['time'][-1],
+            'F0': F0,
+            'V0': V0
+        }
+
+        f_v_slopes_resuls.append(current_f_v)
+
+
+    return f_v_slopes_resuls
+    
 
 
 

@@ -74,8 +74,9 @@ def simulate_sprint(F0, V0, weight, height, running_distance, external_force_N=0
         # update
         covered_distance += (speed * dt)
         speed += (acceleration * dt)
+        speed = max(0.01, speed)
         time += dt
-
+        
         # debug
         #print(f"Time: {cas:.2f}s | Distance: {covered_distance:.2f}m | Speed: {speed:.2f}m/s | Acceleration: {acceleration:.2f}m/s²")
 
@@ -89,17 +90,16 @@ def simulate_sprint(F0, V0, weight, height, running_distance, external_force_N=0
     return report
 
 
-
 def top_speed(data):
     top_speed = max(data['speed'])
     index_top_speed = data['speed'].index(top_speed)
     distance_top_speed = data['distance'][index_top_speed]
-    result = {
+    report = {
         'top_speed': top_speed,
         'distance_top_speed': distance_top_speed
     }
 
-    return result
+    return report
 
 
 def segments(data):
@@ -127,25 +127,13 @@ def segments(data):
     return segment_list
 
 
-def plot_speed(data, nazev_grafu = 'Distance - speed'):
-    plt.figure(figsize=(10, 6))
-    plt.plot(data['distance'], data['speed'])
-    plt.title(nazev_grafu)
-    plt.grid(True)
-    plt.show() 
-
-
-def add_trial_to_speed_plot(data, name):
-    plt.plot(data['distance'], data['speed'], label=name)
-
-
-def f_v_profile_comparison(F0, V0, weight, height, running_distance, external_force_N):
+def f_v_profile_comparison(F0, V0, weight, height, running_distance, external_force_N=0):
     max_power = (F0 * V0) / 4
     
     f_v_slopes_resuls = []
 
     f_v_slopes_range = []
-    min_value = 0.01
+    min_value = 0.1
     max_value = 2.00
     f_v_slope_increment = 0.01
 
@@ -157,7 +145,7 @@ def f_v_profile_comparison(F0, V0, weight, height, running_distance, external_fo
         V0 = math.sqrt((4*max_power)/value)
         F0 = V0 * value
 
-        data = simulate_sprint(F0, V0, weight, height, running_distance)
+        data = simulate_sprint(F0, V0, weight, height, running_distance, external_force_N)
 
         current_f_v = {
             'f_v_slope': value,

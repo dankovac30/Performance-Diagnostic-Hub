@@ -1,38 +1,53 @@
 import matplotlib.pyplot as plt
-import simulator
 import reporting
 
 
+F0 = 9
+V0 = 13
+weight = 80
+height = 185
+running_distance = 100
+external_load = 0
 
-data1 = (9, 13, 80, 1.85 , 100, 0)
-data2 = (7.68, 10.51, 74, 1.84 , 100, 0) #Jara
-data3 = (7.65, 10.36, 74, 1.84 , 100, 0)
-data4 = (7.65, 10.22, 84, 1.84 , 100, 0) #Strasky
-data5 = (7.85, 10.36, 84, 1.84 , 100, 0)
-data6 = (6.69, 9.33, 66, 1.84 , 100, 0) #Salcmanova
-data7 = (6.78, 8.69, 66, 1.84 , 100, 0)
-data8 = (6.56, 9.43, 71, 1.78 , 100, 0) #Splechtnova
-data0 = (8, 11, 84, 1.84 , 100, 200) #Něco odhad
+profile = [F0, V0, weight, height, running_distance, external_load]
 
-
-reporting.segment_report(*data4)
-print('\n')
-
-reporting.max_speed_report(*data4)
-print('\n')
-
-#reporting.plot_trial_v_distance(*data4)
-print('\n')
-
-#reporting.fastest_f_v_report(*data4)
-print('\n')
-
-#reporting.plot_fastest_f_v(*data4)
-print('\n')
+# saved profiles
+jara1 = [7.68, 10.51, 74, 1.84 , 100, 0]
+jara2 = [7.65, 10.36, 74, 1.84 , 100, 0]
+strasky1 = [7.65, 10.22, 84, 1.84 , 100, 0]
+strasky2 = [7.85, 10.36, 84, 1.84 , 100, 0]
+salcmanova1 = [6.69, 9.33, 66, 1.84 , 100, 0]
+salcmanova2 = [6.78, 8.69, 66, 1.84 , 100, 0]
+splechtnova1 = [6.56, 9.43, 71, 1.78 , 100, 0]
+test = [8, 11, 84, 1.84 , 100, 200]
 
 
+#reporting.segment_report(*jara1)
 
+#print('\n')
+#reporting.top_speed_report(*jara1)
+
+#print('\n')
+#reporting.plot_trial_v_distance(*jara1)
+
+#print('\n')
+#reporting.fastest_f_v_report(*jara1)
+
+#print('\n')
+#reporting.plot_fastest_f_v(*jara1)
+
+#print('\n')
+#reporting.calibration(*strasky1)
+
+
+#reporting.plot_add_trial_to_v_distance('jara1', *jara1)
+#reporting.plot_add_trial_to_v_distance('jara2', *jara2)
+#plt.show()
+
+reporting.flying_sections(30, *jara2)
 
 
 
 #python main.py
+ 
+

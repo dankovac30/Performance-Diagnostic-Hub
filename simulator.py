@@ -108,6 +108,7 @@ def segments(data):
     segment_list = []
         
     for i, time in enumerate(data['time']):
+        
         if data['distance'][i] >= boundary:
 
             segment_time = time - previous_time
@@ -140,6 +141,7 @@ def f_v_profile_comparison(F0, V0, weight, height, running_distance, external_fo
     while min_value <= max_value:
         f_v_slopes_range.append(min_value)
         min_value += f_v_slope_increment
+
 
     for value in f_v_slopes_range:
         V0 = math.sqrt((4*max_power)/value)

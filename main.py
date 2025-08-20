@@ -5,7 +5,7 @@ import reporting
 F0 = 9
 V0 = 13
 weight = 80
-height = 185
+height = 1.85
 running_distance = 100
 external_load = 0
 
@@ -44,9 +44,9 @@ test = [8, 11, 84, 1.84 , 100, 200]
 #reporting.plot_add_trial_to_v_distance('jara2', *jara2)
 #plt.show()
 
-reporting.flying_sections(30, *jara2)
+#reporting.flying_sections_report(30, *jara1)
 
-
+reporting.complete_report(*jara1)
 
 #python main.py
  

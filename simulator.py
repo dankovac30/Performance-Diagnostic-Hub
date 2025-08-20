@@ -128,6 +128,81 @@ def segments(data):
     return segment_list
 
 
+def flying_sections(fly_length, F0, V0, weight, height, running_distance, external_force_N=0):
+    
+    if fly_length > 60:
+        
+        return "Nejdelší podporovaný letmý úsek je 60m"
+    
+    elif running_distance < 100:
+
+        return "Pro výpočet letmého úseku zadejte délku běhu alespoň 100m"
+
+    else:
+
+        data = simulate_sprint(F0, V0, weight, height, running_distance, external_force_N)
+
+        fastest_time = float('inf')
+        fastest_start_m = 0
+        fastest_finish_m = 0
+
+        fastest_time_rounded = float('inf')
+        fastest_start_m_rounded = 0
+        fastest_finish_m_rounded = 0
+
+
+        time_list = data['time']
+        distance_list = data['distance']
+        number_of_records = len(time_list)
+
+        loop_marker = 0
+
+        for start_index in range(number_of_records):
+            
+            start_m = distance_list[start_index]
+            finish_m = start_m + fly_length
+
+            for finish_index in range(loop_marker, number_of_records):
+
+                if distance_list[finish_index] >= finish_m:
+                    
+                    finish_m = distance_list[finish_index]
+                    real_segment_distance = finish_m - start_m
+
+                    start_time = time_list[start_index]
+                    finish_time = time_list[finish_index]
+                    segment_time = ((finish_time - start_time) / real_segment_distance) * fly_length
+                    segment_time_rounded = round(segment_time, 2)
+
+                    if segment_time < fastest_time:
+                        fastest_time = segment_time
+                        fastest_start_m = start_m
+                        fastest_finish_m = start_m + fly_length
+
+                    if segment_time_rounded < fastest_time_rounded:
+                        fastest_time_rounded = segment_time_rounded
+                        fastest_start_m_rounded = round(start_m, 0)
+                        fastest_finish_m_rounded = fastest_start_m_rounded + fly_length
+
+                    loop_marker = finish_index
+                    break
+                    
+        fly_report = {
+            'fastest': {
+                'time': fastest_time,
+                'start': fastest_start_m,
+                'finish': fastest_finish_m
+            },
+            'first_fast': {
+                'time': fastest_time_rounded,
+                'start': fastest_start_m_rounded,
+                'finish': fastest_finish_m_rounded
+            }
+        }
+
+    return fly_report
+
+
 def f_v_profile_comparison(F0, V0, weight, height, running_distance, external_force_N=0):
     max_power = (F0 * V0) / 4
     

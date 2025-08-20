@@ -1,5 +1,86 @@
 import matplotlib.pyplot as plt
 import simulator
+import time
+
+
+def complete_report(F0, V0, weight, height, running_distance, external_force_N=0):
+
+    data = simulator.simulate_sprint(F0, V0, weight, height, running_distance, external_force_N)
+
+    running_time = data['time'][-1]
+    top_speed = simulator.top_speed(data)
+
+    fly_segment = simulator.flying_sections(30, F0, V0, weight, height, running_distance, external_force_N)
+
+    if type(fly_segment) == str:
+        fly_time = 'Délka běhu musí být alespoň 100m'
+        fly_start = 'N/A'
+        fly_finish = 'N/A'
+
+    else:
+        fly_time = str(f'{fly_segment['fastest']['time']:.2f} s')
+        fly_start = str(f'{fly_segment['fastest']['start']:.0f}')
+        fly_finish = str(f'{fly_segment['fastest']['finish']:.0f} m')
+        
+    time_30_m = 0
+
+    for index in range(len(data['distance'])):
+        
+        if data['distance'][index] > 30:
+            time_30_m = data['time'][index]
+            break
+
+    p_max = F0 * V0 / 4
+    sfv = F0 / V0
+
+
+    def slow_print(report_lines, delay=0.07):
+
+        for line in report_lines:
+            print(line)
+            time.sleep(delay)
+    
+    report_text = [
+        '\n',
+        '==================================================',
+        ' ==      REPORT VÝKONNOSTNÍ DIAGNOSTIKY        ==',
+        '==================================================',
+        '\n',
+        '--- VSTUPNÍ PARAMETRY SIMULACE ---',
+        f'- F0: {F0} N/kg, V0: {V0}',
+        f'- Hmotnost: {weight} kg, Výška: {height} cm',
+        f'- Běžená vzdálenost: {running_distance} m',
+        f'- Externí odpor: {external_force_N} N',
+        '\n',
+        '--- KLÍČOVÉ UKAZATELE VÝKONU ---',
+        f'Celkový čas na {running_distance}m: {running_time:.2f}',
+        '\n',
+        '--- ČASOVÁ ANALÝZA VÝKONU ---',
+        f'Čas na 30m (akcelerace): {time_30_m:.2f} s',
+        f'Čas ma 30m (letmý úsek): {fly_time}',
+        f'Ve vzdálenosti {fly_start} - {fly_finish}',        
+        f'Maximální rychlost: {top_speed['top_speed']:.2f} m/s',
+        f'Dosaženo ve vzdálenosti: {top_speed['distance_top_speed']:.1f} m',
+        '\n',
+        '--- BIOMECHANICKÝ PROFIL ---',
+        f'Maximální výkon (Pmax): {p_max:.2f} W/kg ({(p_max * weight):.0f} W)',
+        f'F-V Sklon (Sfv): {sfv:.2f}',
+        '\n',
+        '==================================================',
+        'Nyní bude zobrazen graf průběhu rychlosti...',
+        '\n',
+    ]
+
+    slow_print(report_text)
+    
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(data['distance'], data['speed'], label='Graf rychlosti a vzdálenosti')
+    plt.xlabel('Vzdálenost')
+    plt.ylabel('Rychlost')
+    plt.grid(True)
+    plt.show() 
+
 
 def segment_report(F0, V0, weight, height, running_distance, external_force_N=0):
 
@@ -92,64 +173,13 @@ def plot_add_trial_to_v_distance(name, F0, V0, weight, height, running_distance,
     plt.grid(True)
 
 
-def flying_sections(fly_length, F0, V0, weight, height, running_distance, external_force_N=0):
+def flying_sections_report(fly_length, F0, V0, weight, height, running_distance, external_force_N=0):
 
-    if fly_length > running_distance:
-        
-        print("Error: Letmý úsek je delší než celková délka úseku")
-    
+    data = simulator.flying_sections(fly_length, F0, V0, weight, height, running_distance, external_force_N)
+
+    if type(data) == str:
+        print(data)
+
     else:
-
-        data = simulator.simulate_sprint(F0, V0, weight, height, running_distance, external_force_N)
-
-        fastest_time = float('inf')
-        fastest_start_m = 0
-        fastest_finish_m = 0
-
-        fastest_time_rounded = float('inf')
-        fastest_start_m_rounded = 0
-        fastest_finish_m_rounded = 0
-
-
-        time_list = data['time']
-        distance_list = data['distance']
-        number_of_records = len(time_list)
-
-        loop_marker = 0
-
-        for start_index in range(number_of_records):
-            
-            start_m = distance_list[start_index]
-            finish_m = start_m + fly_length
-
-            for finish_index in range(loop_marker, number_of_records):
-
-                if distance_list[finish_index] >= finish_m:
-                    
-                    finish_m = distance_list[finish_index]
-                    real_segment_distance = finish_m - start_m
-
-                    start_time = time_list[start_index]
-                    finish_time = time_list[finish_index]
-                    segment_time = ((finish_time - start_time) / real_segment_distance) * fly_length
-                    segment_time_rounded = round(segment_time, 2)
-
-                    if segment_time < fastest_time:
-                        fastest_time = segment_time
-                        fastest_start_m = start_m
-                        fastest_finish_m = start_m + fly_length
-
-                    if segment_time_rounded < fastest_time_rounded:
-                        fastest_time_rounded = segment_time_rounded
-                        fastest_start_m_rounded = round(start_m, 0)
-                        fastest_finish_m_rounded = fastest_start_m_rounded + fly_length
-
-                    loop_marker = finish_index
-                    break
-
-    print(f'Absolutně nejrychlejší úsek (na tisíciny): {fly_length} m za {fastest_time:.3f} s mezi {fastest_start_m:.1f} - {fastest_finish_m:.1f} m')
-    print(f'První úsek s nejlepším časem (na setiny): {fly_length} m za {fastest_time_rounded} s mezi {fastest_start_m_rounded} - {fastest_finish_m_rounded} m')
-
-
-
-
+        print(f'Absolutně nejrychlejší úsek (na tisíciny): {fly_length} m za {data['fastest']['time']:.3f} s mezi {data['fastest']['start']:.1f} - {data['fastest']['finish']:.1f} m')
+        print(f'První úsek s nejlepším časem (na setiny): {fly_length} m za {data['first_fast']['time']} s mezi {data['first_fast']['start']} - {data['first_fast']['finish']} m')

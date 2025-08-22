@@ -2,7 +2,7 @@ import math
 import matplotlib.pyplot as plt
 
 
-def simulate_sprint(F0, V0, weight, height, running_distance, external_force_N=0):
+def simulate_sprint(F0, V0, weight, height, running_distance, external_force_N=0, nonlinearity=0.86):
     
     # initial state
     time = 0
@@ -18,9 +18,6 @@ def simulate_sprint(F0, V0, weight, height, running_distance, external_force_N=0
     rho = 1.204
     Cd = 0.89
     A = 0.2025 * (height ** 0.725) * (weight ** 0.425)
-
-    # nonlinearity
-    nonlinearity = 0.86    
 
     # others
     lane = 6
@@ -237,6 +234,22 @@ def f_v_profile_comparison(F0, V0, weight, height, running_distance, external_fo
     return f_v_slopes_resuls
     
 
+def nonlinearity_finder(unloaded_speed, F0, V0, weight, height, running_distance, external_force_N=0):
 
+    nonlinearity = 0
 
+    for i in range(750, 950):
+        
+        nonlinearity_loop = i / 1000
+
+        data = simulate_sprint(F0, V0, weight, height, running_distance, external_force_N, nonlinearity_loop)
+
+        speed_loop = top_speed(data)
+        
+        if round(unloaded_speed, 2) == round(speed_loop['top_speed'], 2):
+            nonlinearity = nonlinearity_loop
+            
+        
+    
+    return nonlinearity
 

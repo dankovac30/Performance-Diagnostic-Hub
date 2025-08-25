@@ -237,19 +237,64 @@ def f_v_profile_comparison(F0, V0, weight, height, running_distance, external_fo
 def nonlinearity_finder(unloaded_speed, F0, V0, weight, height, running_distance, external_force_N=0):
 
     nonlinearity = 0
+    external_force_N = 0
 
     for i in range(750, 950):
         
         nonlinearity_loop = i / 1000
 
-        data = simulate_sprint(F0, V0, weight, height, running_distance, external_force_N, nonlinearity_loop)
+        data = simulate_sprint(F0, V0, weight, height, 100, external_force_N, nonlinearity_loop)
 
         speed_loop = top_speed(data)
         
         if round(unloaded_speed, 2) == round(speed_loop['top_speed'], 2):
             nonlinearity = nonlinearity_loop
-            
-        
     
     return nonlinearity
 
+
+def overspeed_zones(unloaded_speed, F0, V0, weight, height, running_distance, external_force_N=0):
+
+    external_force_N = 0
+
+    nonlinearity = nonlinearity_finder(unloaded_speed, F0, V0, weight, height, running_distance, 0)
+
+    overspeed_zones = []
+
+    for i in range(1, 81):
+
+        external_force_N = -i
+
+        data = simulate_sprint(F0, V0, weight, height, 100, external_force_N, nonlinearity)
+
+        max_speed = top_speed(data)['top_speed']
+        speed_gain = max_speed / unloaded_speed
+
+        overspeed_zones.append({
+            'external_force_N': external_force_N,
+            'top_speed': max_speed,
+            'speed_gain': speed_gain
+        })
+    
+    speed_percent = 1.01
+    speed_percent_list = []
+
+    for record in overspeed_zones:
+        
+        if speed_percent > 1.10:
+            break
+
+        if record['top_speed'] > speed_percent * unloaded_speed:
+
+            speed_percent_list.append({
+                'speed_percent': f'{(((speed_percent - 1) * 100) + 100):.0f} %',
+                'external_force': record['external_force_N'],
+                'top_speed': record['top_speed']
+            })
+        
+            speed_percent += 0.01
+
+    test = []
+    predchozi_zaznam = 0
+        
+    return speed_percent_list

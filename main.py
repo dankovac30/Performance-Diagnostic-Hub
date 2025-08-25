@@ -14,7 +14,7 @@ unloaded_speed = 10.5
 profile = [F0, V0, weight, height, running_distance, external_force]
 
 # saved profiles
-jara1 = [7.68, 10.51, 74, 1.84 , 100, 0] # 9.99
+jara1 = [7.68, 10.51, 74, 1.84 , 100, -0] # 9.99
 jara2 = [7.65, 10.36, 74, 1.84 , 100, 0] # 9.86
 strasky1 = [7.65, 10.22, 84, 1.84 , 100, 0] # 9.78
 strasky2 = [7.85, 10.36, 84, 1.84 , 100, 0] # 9.91
@@ -27,7 +27,7 @@ splechtnova2 = [6.56, 9.43, 71, 1.78 , 100, 0] # 8.99
 test = [8, 11, 84, 1.84 , 100, 200]
 
 #profile picker
-profile = jara1
+profile = salcmanova1
 
 
 #reporting.segment_report(*profile)
@@ -56,23 +56,10 @@ profile = jara1
 
 #reporting.complete_report(*profile)
 
-print('Jára')
-print(simulator.nonlinearity_finder(9.99, *jara1))
-print(simulator.nonlinearity_finder(9.84, *jara2))
-print('\n')
-print('Stráský')
-print(simulator.nonlinearity_finder(9.78, *strasky1))
-print(simulator.nonlinearity_finder(9.91, *strasky2))
-print('\n')
-print('Salcmanová')
-print(simulator.nonlinearity_finder(8.88, *salcmanova1))
-print(simulator.nonlinearity_finder(8.65, *salcmanova2))
-print(simulator.nonlinearity_finder(8.33, *salcmanova3))
-print(simulator.nonlinearity_finder(8.42, *salcmanova4))
-print('\n')
-print('Šplechtnová')
-print(simulator.nonlinearity_finder(9.01, *splechtnova1))
-print(simulator.nonlinearity_finder(8.99, *splechtnova2))
+reporting.overspeed_zones_report(9.99, *jara1)
+
+
+
 
 
 

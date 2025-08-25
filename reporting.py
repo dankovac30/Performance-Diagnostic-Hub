@@ -92,9 +92,9 @@ def segment_report(F0, V0, weight, height, running_distance, external_force_N=0)
         print(f"Čas na {segment['distance']:.0f} m: {segment['total_time']:.2f} | Čas segmentu: {segment['segment_time']:.2f}")
 
 
-def top_speed_report(F0, V0, weight, height, running_distance, external_force_N=0):
+def top_speed_report(F0, V0, weight, height, running_distance, external_force_N=0, nonlinearity=0.86):
 
-    data = simulator.simulate_sprint(F0, V0, weight, height, running_distance, external_force_N)
+    data = simulator.simulate_sprint(F0, V0, weight, height, running_distance, external_force_N, nonlinearity)
 
     top_speed = simulator.top_speed(data)
 
@@ -183,3 +183,13 @@ def flying_sections_report(fly_length, F0, V0, weight, height, running_distance,
     else:
         print(f'Absolutně nejrychlejší úsek (na tisíciny): {fly_length} m za {data['fastest']['time']:.3f} s mezi {data['fastest']['start']:.1f} - {data['fastest']['finish']:.1f} m')
         print(f'První úsek s nejlepším časem (na setiny): {fly_length} m za {data['first_fast']['time']} s mezi {data['first_fast']['start']} - {data['first_fast']['finish']} m')
+
+
+def overspeed_zones_report(unloaded_speed, F0, V0, weight, height, running_distance, external_force_N=0):
+
+    data = simulator.overspeed_zones(unloaded_speed, F0, V0, weight, height, running_distance, external_force_N)
+
+    for record in data:
+        
+        print(f'Relativní rychlost: {record['speed_percent']}   Absolutní rychlost: {record['top_speed']:.2f} m/s   Externí síla: {record['external_force']:.0f} N')
+

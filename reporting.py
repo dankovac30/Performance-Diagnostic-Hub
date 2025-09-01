@@ -115,11 +115,11 @@ def fastest_f_v_report(F0, V0, weight, height, running_distance, external_force_
     print(f'V0: {fastest_f_v['V0']:.2f}')
 
 
-def calibration(F0, V0, weight, height, running_distance, external_force_N):
+def calibration(F0, V0, weight, height, running_distance, external_force_N, nonlinearity=0.86):
 
-    data = simulator.simulate_sprint(F0, V0, weight, height, 100, 0)
+    data = simulator.simulate_sprint(F0, V0, weight, height, 100, 0, nonlinearity)
 
-    boudaries = [2.5, 5, 10, 20, 30, 40]
+    boudaries = [2.5, 5, 10, 20, 30]
     boundary_index = 0
 
     for i, time in enumerate(data['time']):

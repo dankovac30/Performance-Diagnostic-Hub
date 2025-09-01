@@ -58,7 +58,7 @@ def simulate_sprint(F0, V0, weight, height, running_distance, external_force_N=0
             fatigie_active = True
 
         if fatigie_active:
-            V0 -= (original_V0 / 51) * dt
+            V0 -= (original_V0 / 60) * dt
             F0 = V0 * f_v_inclination
 
         # return
@@ -75,7 +75,7 @@ def simulate_sprint(F0, V0, weight, height, running_distance, external_force_N=0
         time += dt
         
         # debug
-        #print(f"Time: {cas:.2f}s | Distance: {covered_distance:.2f}m | Speed: {speed:.2f}m/s | Acceleration: {acceleration:.2f}m/s²")
+        # print(f"Time: {time:.2f}s | Distance: {covered_distance:.2f}m | Speed: {speed:.2f}m/s | Acceleration: {acceleration:.2f}m/s²")
 
     report = {
         'time': time_list,

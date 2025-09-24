@@ -39,23 +39,23 @@ profile = jara1
 
 analyza = simulator.SprintSimulation(**profile)
 
-#reporting.complete_report(analyza)
+reporting.complete_report(analyza)
 
-#reporting.segment_report(analyza)
+reporting.segment_report(analyza)
 
-#reporting.top_speed_report(analyza)
+reporting.top_speed_report(analyza)
 
-#reporting.flying_sections_report(analyza)
+reporting.flying_sections_report(analyza)
 
-#reporting.overspeed_zones_report(analyza)
+reporting.overspeed_zones_report(analyza)
 
-#reporting.plot_add_trial_to_v_distance(analyza)
-#reporting.plot_trial_v_distance(analyza)
+reporting.plot_add_trial_to_v_distance(analyza)
+reporting.plot_trial_v_distance(analyza)
 
-#reporting.fastest_f_v_report(analyza)
-#reporting.plot_fastest_f_v(analyza)
+reporting.fastest_f_v_report(analyza)
+reporting.plot_fastest_f_v(analyza)
 
-#reporting.calibration(analyza)
+reporting.calibration(analyza)
 
 
 

@@ -1,5 +1,7 @@
 import math
 import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
 
 class SprintSimulation:
     
@@ -28,15 +30,15 @@ class SprintSimulation:
         self.f_v_inclination = self.F0 / self.V0
 
         # final report
-        self.results = None   
+        self.results_df = None   
 
 
     def get_results(self):
 
-        if self.results is None:
-            self.results = self.run_sprint()
+        if self.results_df is None:
+            self.results_df = self.run_sprint()
         
-        return self.results
+        return self.results_df
         
 
     def run_sprint(self):
@@ -110,15 +112,19 @@ class SprintSimulation:
             'acceleration': acceleration_list
         }
 
-        return self.results
+        self.results_df = pd.DataFrame(self.results)
+
+        return self.results_df
 
 
     def top_speed(self):
-        data = self.get_results()
+        results_df = self.get_results()
 
-        top_speed = max(data['speed'])
-        index_top_speed = data['speed'].index(top_speed)
-        distance_top_speed = data['distance'][index_top_speed]
+        index_top_speed = results_df['speed'].idxmax()
+        row = results_df.loc[index_top_speed]
+        
+        top_speed = row['speed']
+        distance_top_speed = row['distance']
         
         report = {
             'top_speed': top_speed,
@@ -131,29 +137,52 @@ class SprintSimulation:
     def segments(self):
         data = self.get_results()
         
-        boundary = 10
-        previous_time = 0
+        boundary_list = list(range(10, int(self.running_distance + 1), 10))
+        
         segment_list = []
+        total_time_list = []
+        segment_time_list = []
+        previous_time = 0
+
+        
+        for record in boundary_list:
             
-        for i, time in enumerate(data['time']):
+            beyond_boundary_df = data[data['distance'] >= record]
+            if beyond_boundary_df.empty:
+                continue
             
-            if data['distance'][i] >= boundary:
+            first_beyond_boundary_df = beyond_boundary_df.iloc[0]
 
-                segment_time = time - previous_time
+            
+            total_time = first_beyond_boundary_df['time']
+            total_time_list.append(total_time)
+            segment_time = first_beyond_boundary_df['time'] - previous_time
+            segment_time_list.append(segment_time)
 
-                segment = {
-                    'distance': boundary,
-                    'total_time': time,
-                    'segment_time': segment_time
-                }
+            previous_time = first_beyond_boundary_df['time']
 
-                segment_list.append(segment)
-                boundary += 10
-                previous_time = time
+            segment = {
+                'distance': record,
+                'total_time': total_time,
+                'segment_time': segment_time
+            }
 
-        segment_list.append({'distance': data['distance'][-1], 'total_time': data['time'][-1], 'segment_time': data['time'][-1] - previous_time})
+            segment_list.append(segment)
+        
+        
+        last_row = data.iloc[-1]
 
-        return segment_list
+        segment = {
+                'distance': last_row['distance'],
+                'total_time': last_row['time'],
+                'segment_time': last_row['time'] - previous_time
+        }
+
+        segment_list.append(segment)
+
+        segment_df = pd.DataFrame(segment_list)
+
+        return segment_df
 
 
     def flying_sections(self):
@@ -236,14 +265,11 @@ class SprintSimulation:
         
         f_v_slopes_resuls = []
 
-        f_v_slopes_range = []
         min_value = 0.1
         max_value = 2.00
         f_v_slope_increment = 0.01
 
-        while min_value <= max_value:
-            f_v_slopes_range.append(min_value)
-            min_value += f_v_slope_increment
+        f_v_slopes_range = np.arange(min_value, max_value, f_v_slope_increment)
 
 
         for value in f_v_slopes_range:
@@ -256,21 +282,22 @@ class SprintSimulation:
             
             current_f_v = {
                 'f_v_slope': value,
-                'time': data['time'][-1],
+                'time': data['time'].iloc[-1],
                 'F0': F0_new,
                 'V0': V0_new
             }
 
             f_v_slopes_resuls.append(current_f_v)
 
+        f_v_slopes_resuls_df = pd.DataFrame(f_v_slopes_resuls)
 
-        return f_v_slopes_resuls
+        return f_v_slopes_resuls_df
         
 
     def nonlinearity_finder(self):
 
         if self.unloaded_speed is None:
-            return 'Zadejte hodnotu "unloaded speed"'
+            nonlinearity = 0.86
         
         else:
             nonlinearity = None
@@ -291,50 +318,30 @@ class SprintSimulation:
 
     def overspeed_zones(self):
 
-        self.external_force_N = 0
-
-        temp_simulation_1 = SprintSimulation(F0=self.F0, V0=self.V0, weight=self.weight, height=self.height, running_distance=100, external_force_N=self.external_force_N, nonlinearity=self.nonlinearity, unloaded_speed=self.unloaded_speed)
+        temp_simulation_1 = SprintSimulation(F0=self.F0, V0=self.V0, weight=self.weight, height=self.height, running_distance=100, external_force_N=0, nonlinearity=self.nonlinearity, unloaded_speed=self.unloaded_speed)
 
         nonlinearity = temp_simulation_1.nonlinearity_finder()
 
         overspeed_zones = []
 
-        for i in range(1, 81):
+        for i in range(1, 200):
             
             external_force_N = -i
 
             temp_simulation_2 = SprintSimulation(F0=self.F0, V0=self.V0, weight=self.weight, height=self.height, running_distance=100, external_force_N=external_force_N, nonlinearity=nonlinearity)
 
-            data = temp_simulation_2.run_sprint()
-
             top_speed = temp_simulation_2.top_speed()['top_speed']
             speed_gain = top_speed / self.unloaded_speed
-
-            #if speed_gain > 1.1 * self.unloaded
-                #break
 
             overspeed_zones.append({
                 'external_force_N': external_force_N,
                 'top_speed': top_speed,
                 'speed_gain': speed_gain
             })
-        
-        speed_percent = 1.01
-        speed_percent_list = []
 
-        for record in overspeed_zones:
-            
-            if speed_percent > 1.10:
+            if speed_gain > 1.1:
                 break
 
-            if record['top_speed'] > speed_percent * self.unloaded_speed:
+        overspeed_zones_df = pd.DataFrame(overspeed_zones)
 
-                speed_percent_list.append({
-                    'speed_percent': f'{(((speed_percent - 1) * 100) + 100):.0f} %',
-                    'external_force': record['external_force_N'],
-                    'top_speed': record['top_speed']
-                })
-            
-                speed_percent += 0.01
-            
-        return speed_percent_list
+        return overspeed_zones_df

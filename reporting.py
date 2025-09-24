@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import simulator
 import time
+import pandas as pd
 
 
 def complete_report(data):
@@ -11,7 +12,7 @@ def complete_report(data):
 
     report = data.run_sprint()
 
-    running_time = report['time'][-1]
+    running_time = report['time'].iloc[-1]
 
     top_speed = data.top_speed()
 
@@ -23,13 +24,7 @@ def complete_report(data):
     fly_start = str(f'{fly_segment['fastest']['start']:.0f}')
     fly_finish = str(f'{fly_segment['fastest']['finish']:.0f} m')
         
-    time_30_m = 0
-
-    for index in range(len(report['distance'])):
-        
-        if report['distance'][index] > 30:
-            time_30_m = report['time'][index]
-            break
+    time_30_m = report[report['distance'] > 30]['time'].iloc[0]
 
     p_max = data.F0 * data.V0 / 4
     sfv = data.F0 / data.V0
@@ -84,14 +79,19 @@ def complete_report(data):
 
 
 def segment_report(data):
+    print("\n--- MEZIČASY NA SEGMENTECH ---")
 
-    segments = data.segments()
+    segments_df = data.segments()
 
-    for segment in segments:
-        print(f"Čas na {segment['distance']:.0f} m: {segment['total_time']:.2f} | Čas segmentu: {segment['segment_time']:.2f}")
+    for index, row in segments_df.iterrows():
+
+        print(f"Čas na {row['distance']:.0f} m: {row['total_time']:.2f} | Čas segmentu: {row['segment_time']:.2f}")
+
 
 
 def top_speed_report(data):
+    print("\n--- MAXIMÁLNÍ RYCHLOST ---")
+
 
     top_speed = data.top_speed()
 
@@ -100,10 +100,11 @@ def top_speed_report(data):
 
 
 def fastest_f_v_report(data):
+    print("\n--- NEJRYCHLEJŠÍ F-V PROFIL ---")
 
     report = data.f_v_profile_comparison()
 
-    fastest_f_v = min(report, key= lambda record: record['time'])
+    fastest_f_v = report.loc[report['time'].idxmin()]
 
     print(f'Vzdálenost: {data.running_distance} m')
     print(f'Optimální sklon: {fastest_f_v['f_v_slope']:.2f}')
@@ -113,6 +114,7 @@ def fastest_f_v_report(data):
 
 
 def calibration(data):
+    print("\n--- KALIBRACE ---")
 
     report = data.run_sprint()
 
@@ -149,8 +151,8 @@ def plot_fastest_f_v(data):
 
     report = data.f_v_profile_comparison()
 
-    f_v_slope_list = [record['f_v_slope'] for record in report]
-    time_list = [record['time'] for record in report]
+    f_v_slope_list = report['f_v_slope'].tolist()
+    time_list = report['time'].tolist()
 
     plt.figure(figsize=(10, 6))
     plt.plot(f_v_slope_list, time_list)
@@ -171,6 +173,7 @@ def plot_add_trial_to_v_distance(data):
 
 
 def flying_sections_report(data):
+    print("\n--- ANALÝZA LETMÝCH ÚSEKŮ ---")
 
     report = data.flying_sections()
 
@@ -183,10 +186,18 @@ def flying_sections_report(data):
 
 
 def overspeed_zones_report(data):
+    print("\n--- ANALÝZA URYCHLOVAČ ---")
 
     report = data.overspeed_zones()
 
-    for record in report:
-        
-        print(f'Relativní rychlost: {record['speed_percent']}   Absolutní rychlost: {record['top_speed']:.2f} m/s   Externí síla: {record['external_force']:.0f} N')
+    speed_zones = [1.01, 1.02, 1.03, 1.04, 1.05, 1.06, 1.07, 1.08, 1.09, 1.10]
+
+
+    for record in speed_zones:
+
+        beyond_zone = report[report['speed_gain'] >= record]
+
+        first_beyond_zone = beyond_zone.iloc[0]
+
+        print(f'Relativní rychlost: {record * 100:.0f} %    Absolutní rychlost: {first_beyond_zone['top_speed']:.2f} m/s    Externí síla: {first_beyond_zone['external_force_N']:.0f} N')
 

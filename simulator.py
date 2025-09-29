@@ -69,7 +69,7 @@ class SprintSimulation:
 
             # bend resistance
             if self.running_distance > 100 and covered_distance < (self.running_distance - 84.39):
-                f_bend = 0.1 * (self.weight * speed**2) / self.bend_diameter
+                f_bend = 0.027 * (self.weight * speed**2.5) / self.bend_diameter
 
             else:
                 f_bend = 0
@@ -87,7 +87,7 @@ class SprintSimulation:
                 fatigie_active = True
 
             if fatigie_active:
-                V0 -= (original_V0 / 60) * self.dt
+                V0 -= ((original_V0 - 4.4) / 44) * self.dt
                 F0 = V0 * self.f_v_inclination
 
             # return
@@ -120,15 +120,23 @@ class SprintSimulation:
     def top_speed(self):
         results_df = self.get_results()
 
+        results_df['speed_rounded'] = results_df['speed'].round(1)
+
         index_top_speed = results_df['speed'].idxmax()
-        row = results_df.loc[index_top_speed]
-        
-        top_speed = row['speed']
-        distance_top_speed = row['distance']
+        top_speed_row = results_df.loc[index_top_speed]
+        top_speed = top_speed_row['speed']
+        distance_top_speed = top_speed_row['distance']
+
+        index_top_speed_rounded = results_df['speed_rounded'].idxmax()
+        top_speed_rounded_row = results_df.loc[index_top_speed_rounded]
+        top_speed_rounded = top_speed_rounded_row['speed_rounded']
+        distance_top_speed_rounded = top_speed_rounded_row['distance']
         
         report = {
             'top_speed': top_speed,
-            'distance_top_speed': distance_top_speed
+            'distance_top_speed': distance_top_speed,
+            'top_speed_rounded': top_speed_rounded,
+            'distance_top_speed_rounded': distance_top_speed_rounded
         }
 
         return report

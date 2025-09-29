@@ -95,8 +95,11 @@ def top_speed_report(data):
 
     top_speed = data.top_speed()
 
-    print(f'Maximální rychlost: {top_speed['top_speed']:.2f} m/s')
-    print(f'Vzdálenost: {top_speed['distance_top_speed']:.1f} m')
+    print(f'Maximální rychlost (bez zaokrouhl.): {top_speed['top_speed']:.2f} m/s')
+    print(f'Vzdálenost (bez zaokrouhl.): {top_speed['distance_top_speed']:.1f} m')
+    print('\n')    
+    print(f'Maximální rychlost (1 d. m.): {top_speed['top_speed_rounded']:.1f} m/s')
+    print(f'Vzdálenost (1 d. m.): {top_speed['distance_top_speed_rounded']:.1f} m')
 
 
 def fastest_f_v_report(data):
@@ -200,4 +203,20 @@ def overspeed_zones_report(data):
         first_beyond_zone = beyond_zone.iloc[0]
 
         print(f'Relativní rychlost: {record * 100:.0f} %    Absolutní rychlost: {first_beyond_zone['top_speed']:.2f} m/s    Externí síla: {first_beyond_zone['external_force_N']:.0f} N')
+
+    
+def fatigue_calibration(data):
+
+    simulation_100 = simulator.SprintSimulation(F0=data.F0, V0=data.V0, weight=data.weight, height=data.height, running_distance=100)
+    simulation_200 = simulator.SprintSimulation(F0=data.F0, V0=data.V0, weight=data.weight, height=data.height, running_distance=200)
+
+    report_100 = simulation_100.run_sprint()
+    report_200 = simulation_200.run_sprint()
+
+    running_time_100 = report_100['time'].iloc[-1]
+    running_time_200 = report_200['time'].iloc[-1]
+    running_time_100_in_200 = report_200[report_200['distance'] >= 100].iloc[0]['time']
+
+    print(f'{running_time_100:.2f} {running_time_200:.2f} {(running_time_100_in_200 - running_time_100):.2f}   {(running_time_200/running_time_100):.3f}')
+
 

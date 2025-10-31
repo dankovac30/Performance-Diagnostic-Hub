@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
-import simulator
-import reporting
+from sprint_simulator_core.simulator import SprintSimulation
+from . import reporting
 
 
 F0 = 8.5
@@ -35,9 +35,9 @@ test = {'F0': 9, 'V0': 13, 'weight': 94, 'height': 1.95, 'running_distance': 100
 
 
 #profile picker
-profile = test
+profile = jara1
 
-analyza = simulator.SprintSimulation(**profile)
+analyza = SprintSimulation(**profile)
 
 #reporting.complete_report(analyza)
 

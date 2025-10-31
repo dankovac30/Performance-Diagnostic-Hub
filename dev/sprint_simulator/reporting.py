@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import simulator
+from sprint_simulator_core.simulator import SprintSimulation
 import time
 import pandas as pd
 
@@ -207,8 +207,8 @@ def overspeed_zones_report(data):
     
 def fatigue_calibration(data):
 
-    simulation_100 = simulator.SprintSimulation(F0=data.F0, V0=data.V0, weight=data.weight, height=data.height, running_distance=100)
-    simulation_200 = simulator.SprintSimulation(F0=data.F0, V0=data.V0, weight=data.weight, height=data.height, running_distance=200)
+    simulation_100 = SprintSimulation(F0=data.F0, V0=data.V0, weight=data.weight, height=data.height, running_distance=100)
+    simulation_200 = SprintSimulation(F0=data.F0, V0=data.V0, weight=data.weight, height=data.height, running_distance=200)
 
     report_100 = simulation_100.run_sprint()
     report_200 = simulation_200.run_sprint()

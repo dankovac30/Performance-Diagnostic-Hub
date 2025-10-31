@@ -1,2 +1,2 @@
-# sprint-simulator
-Biomechanical model for sprint simulation and analysis in Python
+# Performance diagnostic suite
+A software suite for athletic performance diagnostics and analysis.

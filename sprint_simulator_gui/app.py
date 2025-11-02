@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, font
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from . import app_logic
+from sprint_simulator_gui import app_logic
 
 
 class SprintSimulatorApp:

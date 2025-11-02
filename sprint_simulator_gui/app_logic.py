@@ -19,20 +19,20 @@ def run_simulation_logic(f0, v0, weight, height):
         height_f = float(height_clean)
 
     except ValueError:
-        raise ValueError("Neplatný vstup. Zadejte pouze čísla.")
+        raise ValueError("Invalid input. Please enter numbers only.")
 
     if f0_f <= 0:
-        raise ValueError("F0 musí být kladné číslo (větší než 0).")
+        raise ValueError("F0 must be a positive number (greater than 0).")
         
     if v0_f <= 0:
-        raise ValueError("V0 musí být kladné číslo (větší než 0).")
+        raise ValueError("V0 mmust be a positive number (greater than 0).")
+   
+    if height_f <= 0:
+        raise ValueError("Height must be a positive number (greater than 0).")
         
     if weight_f <= 0:
-        raise ValueError("Hmotnost musí být kladné číslo (větší než 0).")
+        raise ValueError("Weight must be a positive number (greater than 0).")
         
-    if height_f <= 0:
-        raise ValueError("Výška musí být kladné číslo (větší než 0).")
-
     try:
         data = SprintSimulation(
             F0 = f0_f,
@@ -64,8 +64,8 @@ def run_simulation_logic(f0, v0, weight, height):
             'top_speed_distance' : top_speed['distance_top_speed']
         }
 
-        return results
+        return results, report
     
     except Exception as e:
-        raise Exception(f'Došlo k chybě při simulaci: {e}')
+        raise Exception(f'An error occurred during simulation: {e}')
 

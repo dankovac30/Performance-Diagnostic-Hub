@@ -1,7 +1,16 @@
 __pycache__/
 
+*.pyc
+
 /.vscode/
 
 .idea
 
 venv/
+
+/dist/
+
+/build/
+
+*.spec
+

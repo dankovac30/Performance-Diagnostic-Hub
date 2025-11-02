@@ -1,15 +1,38 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, font
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from . import app_logic
 
 
 class SprintSimulatorApp:
     def __init__(self, root):
+        background_colour = '#FAFAFA'
+        border_colour = "#C0C0C0"
 
         self.root = root
-        self.root.title('Sprint F-V Simulátor')
+        self.root.title('Sprint F-V Simulator')
+        self.root.configure(bg=background_colour)
         self.style = ttk.Style()
         self.style.theme_use('clam')
+
+        default_font = font.nametofont("TkDefaultFont")
+        self.font_family = default_font.actual()["family"]
+        self.base_font = (self.font_family, 10)
+        self.heading_font = (self.font_family, 11, "bold")
+
+        self.style.configure('.', background=background_colour, foreground='black', font=self.base_font)
+        self.style.configure('TFrame', background=background_colour)
+        self.style.configure('TLabel', background=background_colour)
+        self.style.configure('TRadiobutton', background=background_colour)
+        self.style.configure('TLabelframe', background=background_colour, bordercolor=border_colour, relief='solid', borderwidth=1)
+        self.style.configure('TLabelframe.Label', background=background_colour, font=self.heading_font)
+        self.style.configure('TButton', font=self.base_font, background=background_colour, foreground='black', bordercolor=border_colour, relief='solid', borderwidth=0.5, padding=(10, 5), focuscolor=background_colour)
+        self.style.map('TButton', background=[('active', '#E0E0E0'), ('hover', '#F0F0F0')], relief=[('pressed', 'solid'), ('hover', 'solid')])
+        self.style.configure('TEntry', font=self.base_font, fieldbackground='#FFFFFF', bordercolor=border_colour, relief='solid', borderwidth=1, padding=(5, 5))
+        self.style.map('TEntry', bordercolor=[('focus', '#0078D7')], relief=[('focus', 'solid')])
+        self.style.configure('TRadiobutton', focuscolor=background_colour)
+        
 
         main_frame = ttk.Frame(self.root, padding="10 10 10 10")
         main_frame.grid(row=0, column=0, sticky=(tk.W, tk.E, tk.N, tk.S))
@@ -17,17 +40,24 @@ class SprintSimulatorApp:
         self.root.columnconfigure(0, weight = 1)
         self.root.rowconfigure(0, weight = 1)
 
+        self.simulation_reports = []
+        self.graph_type_var = tk.StringVar(value="speed")
+
+        self.graph_bg_color = background_colour
+
         self._create_input_widgets(main_frame)
         self._create_output_widgets(main_frame)
-        self._create_action_widgets(main_frame)
+        self._create_control_widgets(main_frame)
+        self._create_graph_widget(main_frame)
 
         main_frame.columnconfigure(0, weight=1)
         main_frame.columnconfigure(1, weight=1)
+        main_frame.rowconfigure(2, weight=1)
 
 
     def _create_input_widgets(self, parent_frame):
 
-        input_frame = ttk.LabelFrame(parent_frame, text='Vstupní parametry', padding=10)
+        input_frame = ttk.LabelFrame(parent_frame, text='Input parameters', padding=10)
         input_frame.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
 
         ttk.Label(input_frame, text="F0 (N/kg):").grid(row=0, column=0, sticky="w", pady=3, padx=5)
@@ -40,32 +70,32 @@ class SprintSimulatorApp:
         self.entry_v0.grid(row=1, column=1, sticky="w", pady=3, padx=5)
         self.entry_v0.insert(0, "10.0")
 
-        ttk.Label(input_frame, text="Hmotnost (kg):").grid(row=2, column=0, sticky="w", pady=3, padx=5)
-        self.entry_weight = ttk.Entry(input_frame, width=12)
-        self.entry_weight.grid(row=2, column=1, sticky="w", pady=3, padx=5)
-        self.entry_weight.insert(0, "83.0")
-
-        ttk.Label(input_frame, text="Výška (m):").grid(row=3, column=0, sticky="w", pady=3, padx=5)
+        ttk.Label(input_frame, text="Height (m):").grid(row=2, column=0, sticky="w", pady=3, padx=5)
         self.entry_height = ttk.Entry(input_frame, width=12)
-        self.entry_height.grid(row=3, column=1, sticky="w", pady=3, padx=5)
+        self.entry_height.grid(row=2, column=1, sticky="w", pady=3, padx=5)
         self.entry_height.insert(0, "1.85")
+
+        ttk.Label(input_frame, text="Weight (kg):").grid(row=3, column=0, sticky="w", pady=3, padx=5)
+        self.entry_weight = ttk.Entry(input_frame, width=12)
+        self.entry_weight.grid(row=3, column=1, sticky="w", pady=3, padx=5)
+        self.entry_weight.insert(0, "83.0")
 
 
     def _create_output_widgets(self, parent_frame):
 
-        output_frame = ttk.LabelFrame(parent_frame, text="Výsledky simulace", padding="10")
+        output_frame = ttk.LabelFrame(parent_frame, text="Simulation results", padding="10")
         output_frame.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
 
         self.output_labels = {}
         
         output_definitions = {
-            'running_time_100m': "Čas na 100m:",
-            'top_speed': "Max. rychlost:",
-            'top_speed_distance': "Vzd. max. rychlosti:",            
-            'time_30m': "Čas na 30m:",
-            'time_30m_fly': "Letmých 30m:",
-            'fly_start': "Letmých 30m (start):",
-            'fly_finish': "Letmých 30m (cíl):"
+            'running_time_100m': "100m Time:",
+            'top_speed': "Max. Speed:",
+            'top_speed_distance': "Dist. of Max. Speed:",            
+            'time_30m': "30m Time:",
+            'time_30m_fly': "Flying 30m time:",
+            'fly_start': "Flying 30m (start):",
+            'fly_finish': "Flying 30m (finish):"
 
         }
 
@@ -78,14 +108,44 @@ class SprintSimulatorApp:
             row += 1
 
 
-    def _create_action_widgets(self, parent_frame):
+    def _create_control_widgets(self, parent_frame):
+        action_frame = ttk.LabelFrame(parent_frame, text="Actions", padding="10")
+        action_frame.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
-        action_frame = ttk.Frame(parent_frame, padding="10 0")
-        action_frame.grid(row=1, column=0, columnspan=2, sticky="ew")
+        self.btn_calculate = ttk.Button(action_frame, text="Calculate & Add to Graph", command=self._handle_calculate)
+        self.btn_calculate.grid(row=0, column=0, sticky="ew", padx=5, pady=2)
 
-        btn_calculate = ttk.Button(action_frame, text="Vypočítat", command=self._handle_calculate)
-        btn_calculate.grid(row=0, column=0, sticky="ew", padx=5)
+        self.btn_clear = ttk.Button(action_frame, text="Clear Graph", command=self._handle_clear_graph)
+        self.btn_clear.grid(row=1, column=0, sticky="ew", padx=5, pady=2)
+
         action_frame.columnconfigure(0, weight=1)
+
+        graph_options_frame = ttk.LabelFrame(parent_frame, text="Graph View", padding="10")
+        graph_options_frame.grid(row=1, column=1, padx=5, pady=5, sticky="nsew")
+
+        rb_speed = ttk.Radiobutton(graph_options_frame, text="Speed / Distance", variable=self.graph_type_var, value="speed", command=self._draw_graph)
+        rb_speed.grid(row=0, column=0, sticky="w", padx=5)
+
+        rb_time = ttk.Radiobutton(graph_options_frame, text="Time / Distance", variable=self.graph_type_var, value="time", command=self._draw_graph)
+        rb_time.grid(row=1, column=0, sticky="w", padx=5)
+
+
+    def _create_graph_widget(self, parent_frame):
+        graph_frame = ttk.LabelFrame(parent_frame, text="Graph Analysis", padding="5")
+        graph_frame.grid(row=2, column=0, columnspan=2, padx=5, pady=5, sticky="nsew")
+
+        graph_frame.columnconfigure(0, weight=1)
+        graph_frame.rowconfigure(0, weight=1)
+
+        self.fig = Figure(figsize=(8, 4), dpi=100, facecolor=self.graph_bg_color)
+        self.fig.subplots_adjust(left=0.08, bottom=0.13, right=0.95, top=0.9)
+        self.ax = self.fig.add_subplot(111)
+        self.ax.set_facecolor(self.graph_bg_color)
+
+        self.canvas = FigureCanvasTkAgg(self.fig, master=graph_frame)
+        self.canvas.get_tk_widget().grid(row=0, column=0, sticky="nsew")
+
+        self._draw_graph()
 
 
     def _handle_calculate(self):
@@ -96,8 +156,7 @@ class SprintSimulatorApp:
             weight = self.entry_weight.get()
             height = self.entry_height.get()
 
-            results = app_logic.run_simulation_logic(f0, v0, weight, height)
-
+            results, report = app_logic.run_simulation_logic(f0, v0, weight, height)
 
             if results:
                 self.output_labels['time_30m'].config(text=f"{results['time_30m']:.2f} s")
@@ -108,10 +167,63 @@ class SprintSimulatorApp:
                 self.output_labels['fly_start'].config(text=results['fly_start'])
                 self.output_labels['fly_finish'].config(text=results['fly_finish'])
 
+            label = f"F0: {float(f0.replace(',', '.')):.2f}, V0: {float(v0.replace(',', '.')):.2f}, H: {float(height.replace(',', '.')):.2f}, W: {float(weight.replace(',', '.')):.1f} "
+            report.name = label
+
+            self.simulation_reports.append(report)
+
+            self._draw_graph()
+
         except ValueError as e:
-            messagebox.showerror("Chyba vstupu", str(e))
+            messagebox.showerror("Input Error", str(e))
         except Exception as e:
-            messagebox.showerror("Chyba simulace", str(e))
+            messagebox.showerror("Simulation Error", str(e))
+
+    
+    def _draw_graph(self):
+        
+        self.ax.clear()
+        self.ax.set_facecolor(self.graph_bg_color)
+
+        graph_type = self.graph_type_var.get()
+
+        if self.simulation_reports:
+            
+            for report in self.simulation_reports:
+                
+                if graph_type == "speed":
+                    self.ax.plot(report['distance'], report['speed'], label=report.name)
+                
+                elif graph_type == "time":
+                    self.ax.plot(report['distance'], report['time'], label=report.name)
+            
+            self.ax.legend(prop={'family': self.font_family, 'size': 9}, loc='lower right')
+
+        if graph_type == "speed":
+            self.ax.set_title("Speed vs. Distance", fontfamily=self.font_family, fontsize=11)
+            self.ax.set_ylabel("Speed (m/s)", fontfamily=self.font_family, fontsize=10)
+            self.ax.set_ylim(0, 14)
+        
+        elif graph_type == "time":
+            self.ax.set_title("Time vs. Distance", fontfamily=self.font_family, fontsize=11)
+            self.ax.set_ylabel("Time (s)", fontfamily=self.font_family, fontsize=10)
+            self.ax.set_ylim(0, 14)
+
+        self.ax.set_xlabel("Distance (m)", fontfamily=self.font_family, fontsize=10)
+        self.ax.set_xlim(0, 100)
+        self.ax.grid(True)
+
+        for label in (self.ax.get_xticklabels() + self.ax.get_yticklabels()):
+            label.set_fontfamily(self.font_family)
+            label.set_fontsize(10)
+
+        self.canvas.draw()
+
+
+    def _handle_clear_graph(self):
+
+        self.simulation_reports.clear()
+        self._draw_graph()
 
 
 def main():
@@ -121,9 +233,9 @@ def main():
             root.mainloop()
         
         except ImportError as e:
-            print("Chyba importu. Ujistěte se, že spouštíte modul z kořenové složky projektu.")
-            print(f"Detail chyby: {e}")
-            print("Spusťte pomocí: python -m simulator_gui.main")            
+            print("Import Error. Make sure you are running this as a module from the root project folder.")
+            print(f"Error detail: {e}")
+            print("SRun using: python -m sprint_simulator_gui.app")            
 
 
 if __name__ == "__main__":

@@ -4,10 +4,10 @@ from . import reporting
 
 
 F0 = 8.5
-V0 = 11.5
+V0 = 11
 weight = 80
 height = 1.85
-running_distance = 100
+running_distance = 200
 external_force = 0
 unloaded_speed = 10.5
 fly_length = 30
@@ -35,7 +35,7 @@ test = {'F0': 9, 'V0': 13, 'weight': 94, 'height': 1.95, 'running_distance': 100
 
 
 #profile picker
-profile = jara1
+profile = profile
 
 analyza = SprintSimulation(**profile)
 

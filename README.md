@@ -1,2 +1,55 @@
-# Performance diagnostic suite
-A software suite for athletic performance diagnostics and analysis.
+# Performance-Diagnostic-Suite
+
+### About
+
+A monorepo of tools for athletic performance analysis and diagnostics. Built in Python, this suite provides tools for simulation, data management, and methodology standardization.
+
+The suite is built around a central physics engine (`sprint_simulator_core`) and provides different applications for coaches, athletes, and researchers.
+
+### Available Tools
+
+Here is an overview of the projects included in this suite. More detailed information can be found in the `README.md` file within each project's folder.
+
+
+#### ⚙️ Sprint Simulator Core
+* **Status:** `In validation`
+* **About:** The computational core powering all sprint-related tools. Python library containing the `SprintSimulation` class, which handles all physics and biomechanical calculations.
+
+#### 🏁 Sprint Simulator GUI
+* **Status:** `Released`
+* **About:** The main desktop application of the suite. Built with Tkinter, it enables coaches to perform "what-if" analyses of sprint performance based on an athlete’s Force–Velocity profile (F₀, V₀) and anthropometric parameters.
+
+#### 🔬 Testing Standards
+* **Status:** `Planned`
+* **About:** A future tool to help standardize testing protocols.
+
+#### 🗃️ Performance Hub
+* **Status:** `Planned`
+* **About:** The future data-management center of the suite.
+
+#### 🧪 `dev/`
+* **Status:** `Internal`
+* **About:** Development and testing folder.
+
+### Roadmap
+
+* `[ ]` Implement the `performance_hub` database and report generation.
+* `[ ]` Finalize the `testing_standards` script.
+
+### Installation & Usage
+
+1.  Clone the repository:
+    ```bash
+    git clone
+    ```
+
+2.  Install dependencies for the specific app (e.g., the GUI):
+    ```bash
+    pip install -r sprint_simulator_gui/requirements.txt
+    ```
+
+3.  Run the application as a module from the **root** folder:
+    ```bash
+    # Run the Sprint Simulator GUI
+    python -m sprint_simulator_gui.app 
+    ```

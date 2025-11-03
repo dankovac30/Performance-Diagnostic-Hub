@@ -102,7 +102,7 @@ class SprintSimulatorApp:
         row = 0
         for key, text in output_definitions.items():
             ttk.Label(output_frame, text=text).grid(row=row, column=0, sticky="w", pady=3, padx=5)
-            value_label = ttk.Label(output_frame, text="--", width=12, font=("Helvetica", 10, "bold"))
+            value_label = ttk.Label(output_frame, text="--", width=12, font=(self.base_font[0], self.base_font[1], "bold"))
             value_label.grid(row=row, column=1, sticky="w", pady=3, padx=5)
             self.output_labels[key] = value_label
             row += 1

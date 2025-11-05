@@ -18,10 +18,8 @@ class SprintSimulation:
         # minimum time increment  
         self.dt = 0.001
 
-        # air resistance constants
-        self.rho = 1.225    # ISA (15 °C, 1013.25 hPa, SL)
-        self.Cd = 0.879      # Drag coeficient
-        self.A = 0.2025 * (self.height ** 0.725) * (self.weight ** 0.425) * 0.266   # Body surface area (Du Bois 1916), converted to frontal area *0.266 (Pugh 1971)
+        # body surface area (Du Bois 1916), converted to frontal area *0.266 (Pugh 1971)
+        self.A = 0.2025 * (self.height ** 0.725) * (self.weight ** 0.425) * 0.266
 
         # others
         lane = 6
@@ -47,6 +45,10 @@ class SprintSimulation:
         V0 = self.V0
         original_V0 = self.V0
 
+        # air resistance constants
+        rho = 1.225    # ISA (15 °C, 1013.25 hPa, SL)
+        Cd = 0.879     # Drag coeficient
+
         # initial state
         time = 0
         speed = 0
@@ -62,7 +64,7 @@ class SprintSimulation:
         while covered_distance < self.running_distance:
 
             # propulsive force
-            f_propulsion = (F0 - (F0/V0) * speed) * self.weight
+            f_propulsion = (F0 - (self.f_v_inclination) * speed) * self.weight
             f_propulsion = max(0, f_propulsion)
 
             # bend resistance
@@ -73,7 +75,7 @@ class SprintSimulation:
                 f_bend = 0
 
             # air resistance
-            f_resistance = 0.5 * self.rho * self.A * self.Cd * (speed ** 2)
+            f_resistance = 0.5 * rho * self.A * Cd * (speed ** 2)
 
             # resultant propulsive force
             f_resultant = f_propulsion - f_resistance - f_bend - self.external_force_N

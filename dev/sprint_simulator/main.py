@@ -4,10 +4,10 @@ from . import reporting
 
 
 F0 = 8.5
-V0 = 11
+V0 = 11.5
 weight = 80
 height = 1.85
-running_distance = 200
+running_distance = 100
 external_force = 0
 unloaded_speed = 10.5
 fly_length = 30
@@ -30,8 +30,17 @@ vanek2 = {'F0': 7.15, 'V0': 10.68, 'weight': 85, 'height': 1.95, 'running_distan
 tlaskal1 = {'F0': 7.64, 'V0': 10.15, 'weight': 68.7, 'height': 1.68, 'running_distance': 100, 'external_force_N': 0, 'unloaded_speed': 9.68, 'fly_length': 30}
 tlaskal2 = {'F0': 7.75, 'V0': 10.41, 'weight': 68.7, 'height': 1.68, 'running_distance': 100, 'external_force_N': 0, 'unloaded_speed': 9.92, 'fly_length': 30}
 tlaskal3 = {'F0': 7.68, 'V0': 10.51, 'weight': 74, 'height': 1.84, 'running_distance': 100, 'external_force_N': 0, 'unloaded_speed': 9.99, 'fly_length': 30}
+bartonek1 = {'F0': 7.29, 'V0': 10.43, 'weight': 80.0, 'height': 1.82, 'running_distance': 100, 'external_force_N': 0, 'unloaded_speed': 9.92, 'fly_length': 30}
+bartonek2 = {'F0': 7.12, 'V0': 10.48, 'weight': 80.0, 'height': 1.82, 'running_distance': 100, 'external_force_N': 0, 'unloaded_speed': 9.95, 'fly_length': 30}
+safar1 = {'F0': 7.89, 'V0': 10.18, 'weight': 74.3, 'height': 1.78, 'running_distance': 100, 'external_force_N': 0, 'unloaded_speed': 9.72, 'fly_length': 30}
+safar2 = {'F0': 7.53, 'V0': 10.19, 'weight': 74.3, 'height': 1.78, 'running_distance': 100, 'external_force_N': 0, 'unloaded_speed': 9.71, 'fly_length': 30}
+sedlacek1 = {'F0': 7.61, 'V0': 9.81, 'weight': 74.0, 'height': 1.83, 'running_distance': 100, 'external_force_N': 0, 'unloaded_speed': 9.38, 'fly_length': 30}
+sedlacek2 = {'F0': 7.81, 'V0': 9.75, 'weight': 74.0, 'height': 1.83, 'running_distance': 100, 'external_force_N': 0, 'unloaded_speed': 9.34, 'fly_length': 30}
+dvorakova1 = {'F0': 5.82, 'V0': 8.38, 'weight': 69.0, 'height': 1.81, 'running_distance': 100, 'external_force_N': 0, 'unloaded_speed': 8.02, 'fly_length': 30}
+dvorakova2 = {'F0': 5.98, 'V0': 8.36, 'weight': 69.0, 'height': 1.81, 'running_distance': 100, 'external_force_N': 0, 'unloaded_speed': 8.01, 'fly_length': 30}
 
-test = {'F0': 9, 'V0': 13, 'weight': 94, 'height': 1.95, 'running_distance': 100, 'external_force_N': 0, 'unloaded_speed': None, 'fly_length': 30}
+
+bolt = {'F0': 9, 'V0': 13, 'weight': 94, 'height': 1.95, 'running_distance': 100, 'external_force_N': 0, 'unloaded_speed': None, 'fly_length': 30}
 
 
 #profile picker
@@ -41,7 +50,7 @@ analyza = SprintSimulation(**profile)
 
 #reporting.complete_report(analyza)
 
-reporting.segment_report(analyza)
+#reporting.segment_report(analyza)
 
 #reporting.top_speed_report(analyza)
 
@@ -57,10 +66,12 @@ reporting.segment_report(analyza)
 
 #reporting.calibration(analyza)
 
-#reporting.fatigue_calibration(analyza)
+reporting.fatigue_calibration(analyza, 0.69)
+
+#print(SprintSimulation.drag_coeficient_calibration(analyza))
 
 
 
 
 
-#python main.py
+# python -m dev.sprint_simulator.main

@@ -87,7 +87,7 @@ class SprintSimulation:
                 fatigie_active = True
 
             if fatigie_active:
-                V0 -= ((original_V0 - 4.4) / 44) * self.dt
+                V0 -= ((original_V0 - 5) / 38) * self.dt
                 F0 = V0 * self.f_v_inclination
 
             # return

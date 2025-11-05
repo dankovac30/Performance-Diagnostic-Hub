@@ -5,24 +5,23 @@ import numpy as np
 
 class SprintSimulation:
     
-    def __init__(self, F0, V0, weight, height, running_distance, external_force_N=0, nonlinearity=0.86, unloaded_speed=None, fly_length=30):
+    def __init__(self, F0, V0, weight, height, running_distance, external_force_N=0, unloaded_speed=None, fly_length=30):
         self.F0 = F0
         self.V0 = V0
         self.weight = weight
         self.height = height
         self.running_distance = running_distance
         self.external_force_N = external_force_N
-        self.nonlinearity = nonlinearity
         self.unloaded_speed = unloaded_speed
         self.fly_length = fly_length
-
+     
         # minimum time increment  
         self.dt = 0.001
 
         # air resistance constants
-        self.rho = 1.204
-        self.Cd = 0.89
-        self.A = 0.2025 * (self.height ** 0.725) * (self.weight ** 0.425)
+        self.rho = 1.225    # ISA (15 °C, 1013.25 hPa, SL)
+        self.Cd = 0.879      # Drag coeficient
+        self.A = 0.2025 * (self.height ** 0.725) * (self.weight ** 0.425) * 0.266   # Body surface area (Du Bois 1916), converted to frontal area *0.266 (Pugh 1971)
 
         # others
         lane = 6
@@ -63,8 +62,7 @@ class SprintSimulation:
         while covered_distance < self.running_distance:
 
             # propulsive force
-            actual_incline = (F0/V0) * (1 - (1 - self.nonlinearity) * (speed/V0))
-            f_propulsion = (F0 - actual_incline * speed) * self.weight
+            f_propulsion = (F0 - (F0/V0) * speed) * self.weight
             f_propulsion = max(0, f_propulsion)
 
             # bend resistance
@@ -99,7 +97,7 @@ class SprintSimulation:
             # update
             covered_distance += (speed * self.dt)
             speed += (acceleration * self.dt)
-            speed = max(0.01, speed)
+            speed = max(0.0001, speed)
             time += self.dt
             
             # debug
@@ -302,44 +300,45 @@ class SprintSimulation:
         return f_v_slopes_resuls_df
         
 
-    def nonlinearity_finder(self):
-
-        if self.unloaded_speed is None:
-            nonlinearity = 0.86
+    def drag_coeficient_calibration(self):
         
-        else:
-            nonlinearity = None
+        # last calibration
+        # values = [0.8789, 0.877, 0.8553, 0.8624, 0.8857, 0.9045, 0.8768, 0.8732, 0.8707, 0.8752, 0.8808, 0.8753, 0.8928, 0.8761, 0.8789, 0.8807, 0.8836, 0.8954, 0.8921, 0.8799, 0.874, 0.8738, 0.8773]
 
-            for i in range(750, 950):
-                
-                nonlinearity_loop = i / 1000
-                
-                temp_simulation = SprintSimulation(F0=self.F0, V0=self.V0, weight=self.weight, height=self.height, running_distance=100, external_force_N=0, nonlinearity=nonlinearity_loop)
-
-                speed_loop = temp_simulation.top_speed()
-                
-                if round(self.unloaded_speed, 2) == round(speed_loop['top_speed'], 2):
-                    nonlinearity = nonlinearity_loop
+        drag_coeficient = None
+        smallest_error = float('inf')
         
-        return nonlinearity
+        for i in range(8500, 9500):
+            
+            drag_coeficient_loop = i / 10000
+            
+            temp_simulation = SprintSimulation(F0=self.F0, V0=self.V0, weight=self.weight, height=self.height, running_distance=100, external_force_N=0, drag_coeficient=drag_coeficient_loop)
+
+            speed_loop = temp_simulation.top_speed()
+
+            current_error = abs(self.unloaded_speed - speed_loop['top_speed'])
+            
+            if current_error < smallest_error:
+                smallest_error = current_error
+                drag_coeficient = drag_coeficient_loop
+                
+        return drag_coeficient
 
 
     def overspeed_zones(self):
-
-        temp_simulation_1 = SprintSimulation(F0=self.F0, V0=self.V0, weight=self.weight, height=self.height, running_distance=100, external_force_N=0, nonlinearity=self.nonlinearity, unloaded_speed=self.unloaded_speed)
-
-        nonlinearity = temp_simulation_1.nonlinearity_finder()
-
+                
         overspeed_zones = []
+        baseline_sim = SprintSimulation(F0=self.F0, V0=self.V0, weight=self.weight, height=self.height, running_distance=100, external_force_N=0)
+        unloaded_speed = baseline_sim.top_speed()['top_speed']
 
         for i in range(1, 200):
             
             external_force_N = -i
 
-            temp_simulation_2 = SprintSimulation(F0=self.F0, V0=self.V0, weight=self.weight, height=self.height, running_distance=100, external_force_N=external_force_N, nonlinearity=nonlinearity)
+            temp_simulation = SprintSimulation(F0=self.F0, V0=self.V0, weight=self.weight, height=self.height, running_distance=100, external_force_N=external_force_N)
 
-            top_speed = temp_simulation_2.top_speed()['top_speed']
-            speed_gain = top_speed / self.unloaded_speed
+            top_speed = temp_simulation.top_speed()['top_speed']
+            speed_gain = top_speed / unloaded_speed
 
             overspeed_zones.append({
                 'external_force_N': external_force_N,

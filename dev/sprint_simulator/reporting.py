@@ -204,24 +204,3 @@ def overspeed_zones_report(data):
         first_beyond_zone = beyond_zone.iloc[0]
 
         print(f'Relativní rychlost: {record * 100:.0f} %    Absolutní rychlost: {first_beyond_zone['top_speed']:.2f} m/s    Externí síla: {first_beyond_zone['external_force_N']:.0f} N')
-
-    
-def fatigue_calibration(data, sfv):
-
-    for Pmax in range(12, 31):
-        V0 = math.sqrt((4*Pmax)/sfv)
-        F0 = V0 * sfv
-
-        simulation_100 = SprintSimulation(F0=F0, V0=V0, weight=data.weight, height=data.height, running_distance=100)
-        simulation_200 = SprintSimulation(F0=F0, V0=V0, weight=data.weight, height=data.height, running_distance=200)
-
-        report_100 = simulation_100.run_sprint()
-        report_200 = simulation_200.run_sprint()
-
-        running_time_100 = report_100['time'].iloc[-1]
-        running_time_200 = report_200['time'].iloc[-1]
-        running_time_100_in_200 = report_200[report_200['distance'] >= 100].iloc[0]['time']
-
-        print(f'Pmax: {Pmax}{running_time_100:>8.2f}{running_time_200:>8.2f}{(running_time_100_in_200 - running_time_100):>8.2f}{(running_time_200/running_time_100):>8.3f}')
-
-

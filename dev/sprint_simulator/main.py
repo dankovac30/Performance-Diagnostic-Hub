@@ -1,12 +1,14 @@
 import matplotlib.pyplot as plt
 from sprint_simulator_core.simulator import SprintSimulation
+from sprint_simulator_core.utilities import find_profile_for_time
+from .fatigue_calibration import grid_validate_fatigue
 from . import reporting
 
 
 F0 = 8.5
-V0 = 11.5
-weight = 80
-height = 1.85
+V0 = 11
+weight = 78.8
+height = 1.80
 running_distance = 100
 external_force = 0
 unloaded_speed = 10.5
@@ -32,7 +34,7 @@ tlaskal2 = {'F0': 7.75, 'V0': 10.41, 'weight': 68.7, 'height': 1.68, 'running_di
 tlaskal3 = {'F0': 7.68, 'V0': 10.51, 'weight': 74, 'height': 1.84, 'running_distance': 100, 'external_force_N': 0, 'unloaded_speed': 9.99, 'fly_length': 30}
 bartonek1 = {'F0': 7.29, 'V0': 10.43, 'weight': 80.0, 'height': 1.82, 'running_distance': 100, 'external_force_N': 0, 'unloaded_speed': 9.92, 'fly_length': 30}
 bartonek2 = {'F0': 7.12, 'V0': 10.48, 'weight': 80.0, 'height': 1.82, 'running_distance': 100, 'external_force_N': 0, 'unloaded_speed': 9.95, 'fly_length': 30}
-safar1 = {'F0': 7.89, 'V0': 10.18, 'weight': 74.3, 'height': 1.78, 'running_distance': 100, 'external_force_N': 0, 'unloaded_speed': 9.72, 'fly_length': 30}
+safar1 = {'F0': 7.89, 'V0': 10.18, 'weight': 74.3, 'height': 1.78, 'running_distance': 200, 'external_force_N': 0, 'unloaded_speed': 9.72, 'fly_length': 30}
 safar2 = {'F0': 7.53, 'V0': 10.19, 'weight': 74.3, 'height': 1.78, 'running_distance': 100, 'external_force_N': 0, 'unloaded_speed': 9.71, 'fly_length': 30}
 sedlacek1 = {'F0': 7.61, 'V0': 9.81, 'weight': 74.0, 'height': 1.83, 'running_distance': 100, 'external_force_N': 0, 'unloaded_speed': 9.38, 'fly_length': 30}
 sedlacek2 = {'F0': 7.81, 'V0': 9.75, 'weight': 74.0, 'height': 1.83, 'running_distance': 100, 'external_force_N': 0, 'unloaded_speed': 9.34, 'fly_length': 30}
@@ -66,11 +68,14 @@ analyza = SprintSimulation(**profile)
 
 #reporting.calibration(analyza)
 
-reporting.fatigue_calibration(analyza, 0.69)
+#reporting.fatigue_calibration(analyza, 0.75)
 
 #print(SprintSimulation.drag_coeficient_calibration(analyza))
 
 
+
+
+print(grid_validate_fatigue(sex='W'))
 
 
 

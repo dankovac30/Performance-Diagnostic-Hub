@@ -1,14 +1,14 @@
 import matplotlib.pyplot as plt
 from sprint_simulator_core.simulator import SprintSimulation
 from sprint_simulator_core.utilities import find_profile_for_time
-from .fatigue_calibration import grid_validate_fatigue
+from .validate_fatigue import validate_fatigue, get_100_200_times
 from . import reporting
 
 
-F0 = 8.5
-V0 = 11
-weight = 78.8
-height = 1.80
+F0 = 8
+V0 = 10
+weight = 83
+height = 1.85
 running_distance = 100
 external_force = 0
 unloaded_speed = 10.5
@@ -46,15 +46,15 @@ bolt = {'F0': 9, 'V0': 13, 'weight': 94, 'height': 1.95, 'running_distance': 100
 
 
 #profile picker
-profile = profile
+profile = bartonek1
 
 analyza = SprintSimulation(**profile)
 
 #reporting.complete_report(analyza)
 
-#reporting.segment_report(analyza)
+reporting.segment_report(analyza)
 
-#reporting.top_speed_report(analyza)
+reporting.top_speed_report(analyza)
 
 #reporting.flying_sections_report(analyza)
 
@@ -68,14 +68,14 @@ analyza = SprintSimulation(**profile)
 
 #reporting.calibration(analyza)
 
-#reporting.fatigue_calibration(analyza, 0.75)
+#get_100_200_times(0.75, 'W')
 
 #print(SprintSimulation.drag_coeficient_calibration(analyza))
 
 
 
 
-print(grid_validate_fatigue(sex='W'))
+#print(validate_fatigue(sex='W'))
 
 
 

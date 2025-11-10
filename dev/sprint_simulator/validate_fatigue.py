@@ -123,8 +123,8 @@ def validate_fatigue(sex="M"):
 
         calculation = fatigue_calibration(fatigue_threshold_grid, fatigue_strength_grid, sex)
 
-        fatigue_threshold_grid = [calculation[0] - precision, calculation[0] + precision*1.1, precision/10]
-        fatigue_strength_grid = [calculation[1] - precision*10, calculation[1] + precision*11, precision]
+        fatigue_threshold_grid = [calculation[0] - precision*2, calculation[0] + precision*2.1, precision/10]
+        fatigue_strength_grid = [calculation[1] - precision*20, calculation[1] + precision*21, precision]
         precision /= 10
         loop += 1
 

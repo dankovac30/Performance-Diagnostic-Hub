@@ -5,7 +5,7 @@ import numpy as np
 
 class SprintSimulation:
     
-    def __init__(self, F0, V0, weight, height, running_distance, external_force_N=0, unloaded_speed=None, fly_length=30):
+    def __init__(self, F0, V0, weight, height, running_distance, external_force_N=0, unloaded_speed=None, fly_length=30, sex='M', fatigue_threshold=None, fatigue_strength=None):
         self.F0 = F0
         self.V0 = V0
         self.weight = weight
@@ -14,12 +14,29 @@ class SprintSimulation:
         self.external_force_N = external_force_N
         self.unloaded_speed = unloaded_speed
         self.fly_length = fly_length
-     
+  
         # minimum time increment  
         self.dt = 0.001
 
         # body surface area (Du Bois 1916), converted to frontal area *0.266 (Pugh 1971)
         self.A = 0.2025 * (self.height ** 0.725) * (self.weight ** 0.425) * 0.266
+
+        # fatigue setup
+        men_fatigue_settings = (5.16, 39.5)
+        women_fatigue_settings = (5.96, 33.1)
+
+        if sex == 'W' and fatigue_threshold is None:
+            
+            self.fatigue_threshold = women_fatigue_settings[0]
+            self.fatigue_strength = women_fatigue_settings[1]
+        
+        elif fatigue_threshold is None:
+            self.fatigue_threshold = men_fatigue_settings[0]
+            self.fatigue_strength = men_fatigue_settings[1]
+
+        else:
+            self.fatigue_threshold = fatigue_threshold
+            self.fatigue_strength = fatigue_strength            
 
         # others
         lane = 6
@@ -87,7 +104,7 @@ class SprintSimulation:
                 fatigie_active = True
 
             if fatigie_active:
-                V0 -= ((original_V0 - 5) / 38) * self.dt
+                V0 -= ((original_V0 - self.fatigue_threshold) / self.fatigue_strength) * self.dt
                 F0 = V0 * self.f_v_inclination
 
             # return
@@ -105,14 +122,14 @@ class SprintSimulation:
             # debug
             # print(f"Time: {time:.2f}s | Distance: {covered_distance:.2f}m | Speed: {speed:.2f}m/s | Acceleration: {acceleration:.2f}m/s²")
 
-        self.results = {
+        results = {
             'time': time_list,
             'distance': distance_list,
             'speed': speed_list,
             'acceleration': acceleration_list
         }
 
-        self.results_df = pd.DataFrame(self.results)
+        self.results_df = pd.DataFrame(results)
 
         return self.results_df
 

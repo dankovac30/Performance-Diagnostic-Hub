@@ -5,12 +5,15 @@ import numpy as np
 
 class SprintSimulation:
     
-    def __init__(self, F0, V0, weight, height, running_distance, external_force_N=0, unloaded_speed=None, fly_length=30, sex='M', fatigue_threshold=None, fatigue_strength=None):
+    def __init__(self, F0, V0, weight, height, running_distance, wind_speed=0.0, temperature_c=15.0, barometric_preassure_hpa=1013.25, external_force_N=0, unloaded_speed=None, fly_length=30, sex='M', fatigue_threshold=None, fatigue_strength=None):
         self.F0 = F0
         self.V0 = V0
         self.weight = weight
         self.height = height
         self.running_distance = running_distance
+        self.wind_speed = wind_speed
+        self.temperature_c = temperature_c
+        self.barometric_preassure_hpa = barometric_preassure_hpa
         self.external_force_N = external_force_N
         self.unloaded_speed = unloaded_speed
         self.fly_length = fly_length
@@ -44,7 +47,7 @@ class SprintSimulation:
         self.f_v_inclination = self.F0 / self.V0
 
         # final report
-        self.results_df = None   
+        self.results_df = None
 
 
     def get_results(self):
@@ -53,7 +56,20 @@ class SprintSimulation:
             self.results_df = self.run_sprint()
         
         return self.results_df
-        
+    
+
+    def calculate_air_density(self):
+        rho0 = 1.293
+        p_std_torr = 760.0
+        t_std_kelvin = 273.0
+
+        temperature_kelvin = t_std_kelvin + self.temperature_c
+        preassure_torr = self.barometric_preassure_hpa * (p_std_torr / 1013.25)
+
+        rho = rho0 * (preassure_torr / p_std_torr) * (t_std_kelvin / temperature_kelvin)
+
+        return rho
+    
 
     def run_sprint(self):
         
@@ -63,8 +79,8 @@ class SprintSimulation:
         original_V0 = self.V0
 
         # air resistance constants
-        rho = 1.225    # ISA (15 °C, 1013.25 hPa, SL)
-        Cd = 0.879     # Drag coeficient
+        Cd = 0.9     # (van IngenSchenauetal. 1991)
+        rho = self.calculate_air_density()
 
         # initial state
         time = 0
@@ -92,7 +108,8 @@ class SprintSimulation:
                 f_bend = 0
 
             # air resistance
-            f_resistance = 0.5 * rho * self.A * Cd * (speed ** 2)
+            relative_speed = speed - self.wind_speed
+            f_resistance = 0.5 * rho * self.A * Cd * (relative_speed * abs(relative_speed))
 
             # resultant propulsive force
             f_resultant = f_propulsion - f_resistance - f_bend - self.external_force_N

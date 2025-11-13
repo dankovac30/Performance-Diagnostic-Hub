@@ -6,7 +6,7 @@ from . import reporting
 
 
 F0 = 8
-V0 = 10
+V0 = 11.5
 weight = 83
 height = 1.85
 running_distance = 100
@@ -46,7 +46,7 @@ bolt = {'F0': 9, 'V0': 13, 'weight': 94, 'height': 1.95, 'running_distance': 100
 
 
 #profile picker
-profile = bartonek1
+profile = bolt
 
 analyza = SprintSimulation(**profile)
 
@@ -54,7 +54,7 @@ analyza = SprintSimulation(**profile)
 
 reporting.segment_report(analyza)
 
-reporting.top_speed_report(analyza)
+#reporting.top_speed_report(analyza)
 
 #reporting.flying_sections_report(analyza)
 
@@ -70,7 +70,7 @@ reporting.top_speed_report(analyza)
 
 #get_100_200_times(0.75, 'W')
 
-#print(SprintSimulation.drag_coeficient_calibration(analyza))
+#print(SprintSimulation.calculate_air_density(analyza))
 
 
 
